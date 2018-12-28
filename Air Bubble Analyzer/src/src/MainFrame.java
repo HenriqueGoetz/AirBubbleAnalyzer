@@ -1,11 +1,24 @@
 package src;
 
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import javax.swing.ImageIcon;
+import javax.swing.SwingConstants;
+import org.opencv.core.Core;
+import org.opencv.core.CvType;
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfByte;
+import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.Imgproc;
+import org.opencv.videoio.VideoCapture;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 /**
  *
  * @author HENRIQUE
@@ -15,10 +28,103 @@ public class MainFrame extends javax.swing.JFrame {
     /**
      * Creates new form MainFrame
      */
+    private static boolean paused = false;
+
     public MainFrame() {
         initComponents();
     }
 
+    private static BufferedImage resize(BufferedImage img) {
+        if (img.getHeight() > 550 || img.getWidth() > 750) {
+            int newW, newH;
+
+            if (img.getHeight() / 550 > img.getWidth() / 750) {
+                newH = 550;
+                newW = img.getWidth() / (img.getHeight() / 550);
+            } else {
+                newW = 750;
+                newH = img.getHeight() / (img.getWidth() / 750);
+            }
+            Image tmp = img.getScaledInstance(newW, newH, Image.SCALE_SMOOTH);
+            BufferedImage dimg = new BufferedImage(newW, newH, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g2d = dimg.createGraphics();
+            g2d.drawImage(tmp, 0, 0, null);
+            g2d.dispose();
+            return dimg;
+        }
+        return img;
+    }
+
+    private static BufferedImage matToBufferedImage(Mat m) {
+        int type = BufferedImage.TYPE_BYTE_GRAY;
+        if (m.channels() > 1) {
+            type = BufferedImage.TYPE_3BYTE_BGR;
+        }
+        BufferedImage image = new BufferedImage(m.cols(), m.rows(), type);
+        m.get(0, 0, ((DataBufferByte) image.getRaster().getDataBuffer()).getData()); // get all the pixels
+        return image;
+    }
+
+    private static BufferedImage toGrayScale(BufferedImage img) {
+
+        BufferedImage image_new = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+        for (int x = 0; x < img.getWidth(); ++x) {
+            for (int y = 0; y < img.getHeight(); ++y) {
+                int rgb = img.getRGB(x, y);
+                int r = (rgb >> 16) & 0xFF;
+                int g = (rgb >> 8) & 0xFF;
+                int b = (rgb & 0xFF);
+
+                int grayLevel = (r + g + b) / 3;
+                int gray = (grayLevel << 16) + (grayLevel << 8) + grayLevel;
+                image_new.setRGB(x, y, gray);
+            }
+        }
+        return image_new;
+    }
+    
+    private static Mat toGray(Mat mat) {
+        Mat retorno = new Mat();
+        Imgproc.cvtColor(mat, retorno, Imgproc.COLOR_RGB2GRAY);
+        return retorno;
+    }
+    
+    private static Mat toConvert(Mat mat, double contraste, double brilho) {
+        Mat retorno = new Mat();
+        mat.convertTo(retorno, -1, contraste, brilho);
+        return retorno;
+    }
+    
+    private static Mat toCanny(Mat mat) {
+        Mat retorno = new Mat();
+        Mat aux = new Mat();
+        Mat draw = new Mat();
+        Imgproc.cvtColor(mat, aux, Imgproc.COLOR_RGB2GRAY);
+        Imgproc.Canny(aux, retorno, 150, 250, 3, false);
+        retorno.convertTo(draw, CvType.CV_8U);
+        return draw;
+    }
+    
+    private static Mat toSobel(Mat mat) {
+        Mat retorno = new Mat();
+        Imgproc.cvtColor(mat, mat, Imgproc.COLOR_RGB2GRAY);
+        Imgproc.Sobel(mat, retorno, mat.depth(), 1, 1);
+        return (retorno);
+    }
+
+    /*
+    public static BufferedImage matToBufferedImage(Mat videoMatImage) {
+
+        int type = videoMatImage.channels() == 1 ? BufferedImage.TYPE_BYTE_GRAY : BufferedImage.TYPE_3BYTE_BGR;
+        int bufferSize = videoMatImage.channels() * videoMatImage.cols() * videoMatImage.rows();
+        byte[] buffer = new byte[bufferSize];
+        videoMatImage.get(0, 0, buffer);
+        BufferedImage image = new BufferedImage(videoMatImage.cols(), videoMatImage.rows(), type);
+        final byte[] targetPixels = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
+        System.arraycopy(buffer, 0, targetPixels, 0, buffer.length);
+        return image;
+    }
+     */
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -28,21 +134,113 @@ public class MainFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jPanel1 = new javax.swing.JPanel();
+        lblImagemOriginal = new javax.swing.JLabel();
+        jPanel2 = new javax.swing.JPanel();
+        lblImagemNova = new javax.swing.JLabel();
+        btnPause = new javax.swing.JButton();
+        jsliderVelocidade = new javax.swing.JSlider();
+        jLabel1 = new javax.swing.JLabel();
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        jPanel1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        jPanel1.setPreferredSize(new java.awt.Dimension(750, 550));
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(lblImagemOriginal, javax.swing.GroupLayout.DEFAULT_SIZE, 746, Short.MAX_VALUE)
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(lblImagemOriginal, javax.swing.GroupLayout.DEFAULT_SIZE, 546, Short.MAX_VALUE)
+        );
+
+        jPanel2.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        jPanel2.setPreferredSize(new java.awt.Dimension(750, 550));
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(lblImagemNova, javax.swing.GroupLayout.DEFAULT_SIZE, 746, Short.MAX_VALUE)
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(lblImagemNova, javax.swing.GroupLayout.DEFAULT_SIZE, 546, Short.MAX_VALUE)
+        );
+
+        btnPause.setText("Pause");
+        btnPause.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPauseActionPerformed(evt);
+            }
+        });
+
+        jsliderVelocidade.setMajorTickSpacing(1);
+        jsliderVelocidade.setMaximum(10);
+        jsliderVelocidade.setMinimum(1);
+        jsliderVelocidade.setMinorTickSpacing(1);
+        jsliderVelocidade.setPaintLabels(true);
+        jsliderVelocidade.setSnapToTicks(true);
+        jsliderVelocidade.setValue(1);
+
+        jLabel1.setText("Velocidade:");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 809, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(24, 24, 24)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addGap(18, 18, 18)
+                        .addComponent(jsliderVelocidade, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(52, 52, 52)
+                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(btnPause))
+                .addContainerGap(67, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 563, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(25, 25, 25)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(44, 44, 44)
+                        .addComponent(jLabel1))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(31, 31, 31)
+                        .addComponent(jsliderVelocidade, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 23, Short.MAX_VALUE)
+                .addComponent(btnPause)
+                .addGap(24, 24, 24))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnPauseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPauseActionPerformed
+        // TODO add your handling code here:
+        if (btnPause.getText() == "Pause") {
+            System.out.println("PAUSED");
+            btnPause.setText(" Run ");
+            paused = true;
+        } else {
+            System.out.println(" Run ");
+            btnPause.setText("Pause");
+            paused = false;
+        }
+    }//GEN-LAST:event_btnPauseActionPerformed
 
     /**
      * @param args the command line arguments
@@ -53,6 +251,9 @@ public class MainFrame extends javax.swing.JFrame {
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
          * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
          */
+
+        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
@@ -60,25 +261,72 @@ public class MainFrame extends javax.swing.JFrame {
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
+        //</editor-fold>
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new MainFrame().setVisible(true);
             }
         });
+
+        VideoCapture webSource = new VideoCapture("teste.mp4");
+        MatOfByte mem = new MatOfByte();
+        Mat frame = new Mat();
+        webSource.grab();
+        webSource.retrieve(frame);
+        Imgcodecs.imencode(".bmp", frame, mem);
+
+        BufferedImage imagemoriginal = matToBufferedImage(frame);
+        imagemoriginal = resize(imagemoriginal);
+        BufferedImage imagemnova = toGrayScale(imagemoriginal);
+        lblImagemOriginal.setIcon(new ImageIcon(imagemoriginal));
+        lblImagemOriginal.setHorizontalAlignment(SwingConstants.CENTER);
+        lblImagemNova.setIcon(new ImageIcon(imagemnova));
+        lblImagemNova.setHorizontalAlignment(SwingConstants.CENTER);
+
+        int timer = 0;
+        while (true) {
+            if (!paused) {
+                System.out.println("Running");
+                if (timer % jsliderVelocidade.getValue() == 0) {
+                    if (webSource.grab()) {
+                        webSource.retrieve(frame);
+                        Imgcodecs.imencode(".bmp", frame, mem);
+                       
+                        imagemoriginal = matToBufferedImage(frame);
+                        imagemoriginal = resize(imagemoriginal);
+                        
+                        imagemnova = toGrayScale(imagemoriginal);//matToBufferedImage(toCanny(frame));
+                        imagemnova = resize(imagemnova);
+
+                        lblImagemOriginal.setIcon(new ImageIcon(imagemoriginal));
+                        lblImagemOriginal.setHorizontalAlignment(SwingConstants.CENTER);
+                        lblImagemNova.setIcon(new ImageIcon(imagemnova));
+                        lblImagemNova.setHorizontalAlignment(SwingConstants.CENTER);
+                    }
+                } else {
+                    webSource.grab();
+                }
+                timer++;
+            }else{
+                System.out.println("Paused");
+            }
+
+        }
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnPause;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private static javax.swing.JSlider jsliderVelocidade;
+    private static javax.swing.JLabel lblImagemNova;
+    private static javax.swing.JLabel lblImagemOriginal;
     // End of variables declaration//GEN-END:variables
 }
