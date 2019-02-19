@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+import javax.swing.JFrame;
 import javax.swing.SwingConstants;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
@@ -37,21 +38,48 @@ public class MainFrame extends javax.swing.JFrame {
     private static boolean paused = false;
     private static int numberOfFrames;
 
+    private static BufferedImage quantization(BufferedImage image) {
+
+        Color black = new Color(0, 0, 0);
+        Color white = new Color(255, 255, 255);
+
+        for (int i = 0; i < image.getWidth(); i++) {
+            for (int j = 0; j < image.getHeight(); j++) {
+                Color rgb = new Color(image.getRGB(i, j));
+                if (image.getRGB(i, j) != black.getRGB() && image.getRGB(i, j) != white.getRGB()) {
+                    if (rgb.getRed() < 128) {
+                        image.setRGB(i, j, black.getRGB());
+                    } else {
+                        image.setRGB(i, j, white.getRGB());
+                    }
+                }
+            }
+        }
+
+        return image;
+    }
+
+    ArrayList<Mat> frames = new ArrayList();
+
     public MainFrame() {
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
         initComponents();
     }
 
     private static BufferedImage resize(BufferedImage img) {
-        if (img.getHeight() > 550 || img.getWidth() > 750) {
+        int w = 750;
+        int h = 550;
+        if (img.getHeight() > h || img.getWidth() > w) {
             int newW, newH;
 
-            if (img.getHeight() / 550 > img.getWidth() / 750) {
-                newH = 550;
-                newW = img.getWidth() / (img.getHeight() / 550);
+            if (img.getHeight() / h > img.getWidth() / w) {
+                newH = h;
+                newW = img.getWidth() / (img.getHeight() / h);
             } else {
-                newW = 750;
-                newH = img.getHeight() / (img.getWidth() / 750);
+                newW = w;
+                newH = img.getHeight() / (img.getWidth() / w);
             }
+
             Image tmp = img.getScaledInstance(newW, newH, Image.SCALE_SMOOTH);
             BufferedImage dimg = new BufferedImage(newW, newH, img.getType());
             Graphics2D g2d = dimg.createGraphics();
@@ -62,49 +90,19 @@ public class MainFrame extends javax.swing.JFrame {
         return img;
     }
 
-    private static BufferedImage matToBufferedImage(Mat m) {
-
-        int type = BufferedImage.TYPE_BYTE_GRAY;
-        if (m.channels() > 1) {
-            type = BufferedImage.TYPE_3BYTE_BGR;
-        }
-        BufferedImage image = new BufferedImage(m.cols(), m.rows(), type);
-        m.get(0, 0, ((DataBufferByte) image.getRaster().getDataBuffer()).getData()); // get all the pixels
-        return image;
-    }
-
-    private static BufferedImage toGrayScale(BufferedImage img) {
-
-        BufferedImage img_new = new BufferedImage(img.getWidth(), img.getHeight(), img.getType());
-
-        for (int row = 0; row < img_new.getHeight(); row++) {
-            for (int col = 0; col < img_new.getWidth(); col++) {
-                int rgb = img.getRGB(col, row);
-                Color c = new Color(rgb);
-                int red = c.getRed();
-                int green = c.getGreen();
-                int blue = c.getBlue();
-                int k = (int) ((red * 0.299) + (0.587 * green) + (0.114 * blue));
-                Color temp = new Color(k, k, k);
-                img_new.setRGB(col, row, temp.getRGB());
-            }
-        }
-        return img_new;
-    }
-
-    private static Mat toConvert(Mat mat, double contraste, double brilho) {
-        Mat retorno = new Mat();
-        mat.convertTo(retorno, -1, contraste, brilho);
-        return retorno;
-    }
-
     private static Mat toCanny(Mat mat) {
         Mat retorno = new Mat();
-        Mat aux = mat;
-        //Imgproc.cvtColor(aux, retorno, Imgproc.COLOR_RGB2GRAY);
+        Imgproc.cvtColor(mat, retorno, Imgproc.COLOR_RGB2GRAY);
         Imgproc.Canny(retorno, retorno, 150, 250, 3, false);
         retorno.convertTo(retorno, CvType.CV_8U);
         return retorno;
+    }
+
+    private static Mat toRGB(Mat mat) {
+
+        Imgproc.cvtColor(mat, mat, Imgproc.COLOR_GRAY2RGB);
+
+        return mat;
     }
 
     private static Mat toGray(Mat mat) {
@@ -113,76 +111,16 @@ public class MainFrame extends javax.swing.JFrame {
         return retorno;
     }
 
-    private static Mat toColorfull(Mat mat) {
-        Mat retorno = new Mat();
-        Imgproc.cvtColor(mat, retorno, Imgproc.COLOR_BGR2RGB);
-        return retorno;
-    }
-
-    private static Mat toSobel(Mat mat) {
-        Mat retorno = new Mat();
-        Imgproc.cvtColor(mat, mat, Imgproc.COLOR_RGB2GRAY);
-        Imgproc.Sobel(mat, retorno, mat.depth(), 1, 1);
-        return (retorno);
-    }
-
-    private static Mat quantizationImage(Mat img) {
-        Mat source = img;
-        Mat finalImage = source.clone();
-        Mat cannyImage = source.clone();
-        cannyImage = toCanny(cannyImage);
-
-        finalImage = toColorfull(finalImage);
-        source.convertTo(source, CvType.CV_64FC3);
-
-        int tons = 2;
-        int intervalo = (int) 255 / (tons - 1);
-
-        for (int col = 0; col < source.cols(); col++) {
-            for (int row = 0; row < source.rows(); row++) {
-                double[] temp = new double[source.channels()];
-                source.get(row, col, temp);
-
-                int k = (int) temp[0];
-                int aux = 0;
-                double finalColor = 0;
-
-                for (int i = 0; i < tons; i++) {
-                    if (i == 0) {
-                        aux = Math.abs(k);
-                    } else if (aux > Math.abs(k - (i * intervalo))) {
-                        aux = Math.abs(k - (i * intervalo));
-                        finalColor = i * intervalo;
-                    }
-
-                    if (k > 130 && k < 180) {
-                        finalImage.put(row, col, new double[]{100, 255, 100});
-                    } else if (k >180) {
-                        finalImage.put(row, col, new double[]{255, 0, 0});
-                    } else {
-
-                        byte[] tempCanny = new byte[cannyImage.channels()];
-                        cannyImage.get(row, col, tempCanny);
-                        int l = (int) tempCanny[0];
-
-                        if (l == 255) {
-                            finalColor = 0;
-                        }
-
-                        finalImage.put(row, col, new double[]{finalColor, finalColor, finalColor});
-                    }
-
-                }
-            }
+    public static BufferedImage matToBufferedImage(Mat m) {
+        int type = BufferedImage.TYPE_BYTE_GRAY;
+        if (m.channels() > 1) {
+            type = BufferedImage.TYPE_3BYTE_BGR;
         }
-        return finalImage;
+        BufferedImage image = new BufferedImage(m.cols(), m.rows(), type);
+        m.get(0, 0, ((DataBufferByte) image.getRaster().getDataBuffer()).getData());
+        return image;
     }
 
-    /**
-     * This method is called from within the constructor to initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is always
-     * regenerated by the Form Editor.
-     */
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -198,6 +136,7 @@ public class MainFrame extends javax.swing.JFrame {
         jsliderVelocidade = new javax.swing.JSlider();
         jLabel1 = new javax.swing.JLabel();
         btnPause = new javax.swing.JButton();
+        btnGetImage = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -208,11 +147,11 @@ public class MainFrame extends javax.swing.JFrame {
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(lblImagemOriginal, javax.swing.GroupLayout.DEFAULT_SIZE, 746, Short.MAX_VALUE)
+            .addComponent(lblImagemOriginal, javax.swing.GroupLayout.DEFAULT_SIZE, 896, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(lblImagemOriginal, javax.swing.GroupLayout.DEFAULT_SIZE, 546, Short.MAX_VALUE)
+            .addComponent(lblImagemOriginal, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         jPanel2.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -222,11 +161,11 @@ public class MainFrame extends javax.swing.JFrame {
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(lblImagemNova, javax.swing.GroupLayout.DEFAULT_SIZE, 746, Short.MAX_VALUE)
+            .addComponent(lblImagemNova, javax.swing.GroupLayout.DEFAULT_SIZE, 896, Short.MAX_VALUE)
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(lblImagemNova, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(lblImagemNova, javax.swing.GroupLayout.DEFAULT_SIZE, 596, Short.MAX_VALUE)
         );
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 1, 48)); // NOI18N
@@ -248,7 +187,6 @@ public class MainFrame extends javax.swing.JFrame {
         jsliderVelocidade.setMaximum(10);
         jsliderVelocidade.setMinimum(1);
         jsliderVelocidade.setMinorTickSpacing(1);
-        jsliderVelocidade.setOrientation(javax.swing.JSlider.VERTICAL);
         jsliderVelocidade.setPaintLabels(true);
         jsliderVelocidade.setPaintTicks(true);
         jsliderVelocidade.setSnapToTicks(true);
@@ -264,19 +202,19 @@ public class MainFrame extends javax.swing.JFrame {
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel1)
+                .addGap(18, 18, 18)
+                .addComponent(jsliderVelocidade, javax.swing.GroupLayout.PREFERRED_SIZE, 662, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addComponent(jsliderVelocidade, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 2, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jsliderVelocidade, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addComponent(jsliderVelocidade, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         btnPause.setText("Pause");
@@ -286,49 +224,59 @@ public class MainFrame extends javax.swing.JFrame {
             }
         });
 
+        btnGetImage.setFont(new java.awt.Font("Tahoma", 0, 36)); // NOI18N
+        btnGetImage.setText("Get image");
+        btnGetImage.setEnabled(false);
+        btnGetImage.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnGetImageActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 900, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jsliderTempo, javax.swing.GroupLayout.PREFERRED_SIZE, 900, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btnPause, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(32, 32, 32)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jsliderTempo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(52, 52, 52)
-                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(56, 56, 56)
+                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 900, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(394, 394, 394)
-                        .addComponent(btnPause, javax.swing.GroupLayout.PREFERRED_SIZE, 256, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(68, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addComponent(jLabel2)
-                .addGap(4, 4, 4)
-                .addComponent(lblStatus)
-                .addGap(651, 651, 651))
+                        .addGap(181, 181, 181)
+                        .addComponent(btnGetImage)
+                        .addGap(64, 64, 64)
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(lblStatus)))
+                .addContainerGap(227, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, 600, Short.MAX_VALUE)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 600, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jsliderTempo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(btnPause)
-                .addGap(34, 34, 34)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblStatus)
-                    .addComponent(jLabel2))
-                .addContainerGap(54, Short.MAX_VALUE))
+                .addGap(17, 17, 17)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnPause, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel2)
+                        .addComponent(lblStatus)
+                        .addComponent(btnGetImage, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(151, Short.MAX_VALUE))
         );
 
         pack();
@@ -348,6 +296,23 @@ public class MainFrame extends javax.swing.JFrame {
             paused = false;
         }
     }//GEN-LAST:event_btnPauseActionPerformed
+
+    private void btnGetImageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGetImageActionPerformed
+
+        lblStatus.setForeground(Color.red);
+        lblStatus.setText("Paused");
+        btnPause.setText(" Run ");
+        paused = true;
+
+        FrameEdictor frame = new FrameEdictor();
+        ImageIcon img = (ImageIcon) lblImagemNova.getIcon();
+        Image image = img.getImage();
+        BufferedImage buffered = (BufferedImage) image;
+        frame.LoadImage(buffered);
+
+        frame.setVisible(true);
+
+    }//GEN-LAST:event_btnGetImageActionPerformed
 
     /**
      * @param args the command line arguments
@@ -381,7 +346,7 @@ public class MainFrame extends javax.swing.JFrame {
             }
         });
 
-        VideoCapture webSource = new VideoCapture("teste.mov");
+        VideoCapture webSource = new VideoCapture("teste02.mp4");
         MatOfByte mem = new MatOfByte();
         ArrayList<Mat> frames = new ArrayList();
 
@@ -396,10 +361,10 @@ public class MainFrame extends javax.swing.JFrame {
 
         if (frames.isEmpty()) {
             lblStatus.setText("Error!");
-            System.out.println("Error: File not founded.");
         } else {
             lblStatus.setForeground(new Color(0, 102, 0));
             lblStatus.setText("Running");
+            btnGetImage.setEnabled(true);
             jsliderTempo.setMinimum(0);
             jsliderTempo.setMaximum(frames.size() - 1);
             jsliderTempo.setValue(0);
@@ -409,11 +374,14 @@ public class MainFrame extends javax.swing.JFrame {
                 BufferedImage imagemoriginal = matToBufferedImage(frames.get(jsliderTempo.getValue()));
                 imagemoriginal = resize(imagemoriginal);
 
-                BufferedImage imagemnova = matToBufferedImage(quantizationImage(toGray(frames.get(jsliderTempo.getValue()))));
+                BufferedImage imagemnova = matToBufferedImage(toRGB(toCanny((frames.get(jsliderTempo.getValue())))));
                 imagemnova = resize(imagemnova);
+
+                imagemnova = quantization(imagemnova);
 
                 lblImagemOriginal.setIcon(new ImageIcon(imagemoriginal));
                 lblImagemOriginal.setHorizontalAlignment(SwingConstants.CENTER);
+
                 lblImagemNova.setIcon(new ImageIcon(imagemnova));
                 lblImagemNova.setHorizontalAlignment(SwingConstants.CENTER);
 
@@ -496,6 +464,7 @@ public class MainFrame extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private static javax.swing.JButton btnGetImage;
     private javax.swing.JButton btnPause;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
