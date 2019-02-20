@@ -30,7 +30,6 @@ public class FrameEdictor extends javax.swing.JFrame {
 
     public FrameEdictor() {
         initComponents();
-
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
 
@@ -60,6 +59,8 @@ public class FrameEdictor extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         lblNumberOfPixels = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        lblAltura = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -154,16 +155,26 @@ public class FrameEdictor extends javax.swing.JFrame {
         lblNumberOfPixels.setFont(new java.awt.Font("Tahoma", 0, 36)); // NOI18N
         lblNumberOfPixels.setText("------");
 
+        jLabel3.setFont(new java.awt.Font("Tahoma", 0, 36)); // NOI18N
+        jLabel3.setText("Altura do bolsão:");
+
+        lblAltura.setFont(new java.awt.Font("Tahoma", 0, 36)); // NOI18N
+        lblAltura.setText("------");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel2)
-                .addGap(35, 35, 35)
-                .addComponent(lblNumberOfPixels)
-                .addContainerGap(375, Short.MAX_VALUE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel2)
+                    .addComponent(jLabel3))
+                .addGap(151, 151, 151)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblAltura)
+                    .addComponent(lblNumberOfPixels))
+                .addContainerGap(259, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -172,7 +183,11 @@ public class FrameEdictor extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(lblNumberOfPixels))
-                .addContainerGap(24, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel3)
+                    .addComponent(lblAltura))
+                .addContainerGap(60, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -200,8 +215,8 @@ public class FrameEdictor extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(btnCountPixels, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(103, Short.MAX_VALUE))
+                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -324,9 +339,11 @@ public class FrameEdictor extends javax.swing.JFrame {
     private javax.swing.JButton btnWhite;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jpImage;
+    private javax.swing.JLabel lblAltura;
     private javax.swing.JLabel lblImagem;
     private javax.swing.JLabel lblNumberOfPixels;
     // End of variables declaration//GEN-END:variables
@@ -355,7 +372,18 @@ public class FrameEdictor extends javax.swing.JFrame {
             }
             points.remove(point);
         }
-
+        
+        int sup=0, inf = 0;
+        
+        while(image.getRGB(initialPoint.x, initialPoint.y-sup) == gray.getRGB()){
+            sup++;
+        }
+        while(image.getRGB(initialPoint.x, initialPoint.y+inf) == gray.getRGB()){
+            inf++;
+        }
+        
+        lblAltura.setText(String.valueOf(inf+sup-1));
+        
         return nPixels;
     }
 }
