@@ -1,16 +1,13 @@
-package src;
+package frames;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.List;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
-import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.SwingConstants;
 import org.opencv.core.Core;
@@ -35,8 +32,10 @@ public class MainFrame extends javax.swing.JFrame {
     /**
      * Creates new form MainFrame
      */
+    private static boolean loaded = false;
     private static boolean paused = false;
     private static int numberOfFrames;
+    private static ArrayList<Mat> frames = new ArrayList();
 
     private static BufferedImage quantization(BufferedImage image) {
 
@@ -47,7 +46,7 @@ public class MainFrame extends javax.swing.JFrame {
             for (int j = 0; j < image.getHeight(); j++) {
                 Color rgb = new Color(image.getRGB(i, j));
                 if (image.getRGB(i, j) != black.getRGB() && image.getRGB(i, j) != white.getRGB()) {
-                    if (rgb.getRed() < 128) {
+                    if (rgb.getRed() < 30) {
                         image.setRGB(i, j, black.getRGB());
                     } else {
                         image.setRGB(i, j, white.getRGB());
@@ -58,8 +57,6 @@ public class MainFrame extends javax.swing.JFrame {
 
         return image;
     }
-
-    ArrayList<Mat> frames = new ArrayList();
 
     public MainFrame() {
         setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -93,7 +90,9 @@ public class MainFrame extends javax.swing.JFrame {
     private static Mat toCanny(Mat mat) {
         Mat retorno = new Mat();
         Imgproc.cvtColor(mat, retorno, Imgproc.COLOR_RGB2GRAY);
-        Imgproc.Canny(retorno, retorno, 150, 250, 3, false);
+
+        Imgproc.Canny(retorno, retorno, jsCannyParameter.getValue(), jsCannyParameter.getValue() * 3, 3, false);
+
         retorno.convertTo(retorno, CvType.CV_8U);
         return retorno;
     }
@@ -137,6 +136,10 @@ public class MainFrame extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         btnPause = new javax.swing.JButton();
         btnGetImage = new javax.swing.JButton();
+        jPanel4 = new javax.swing.JPanel();
+        jLabel3 = new javax.swing.JLabel();
+        jsCannyParameter = new javax.swing.JSlider();
+        btnLoad = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -147,11 +150,13 @@ public class MainFrame extends javax.swing.JFrame {
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(lblImagemOriginal, javax.swing.GroupLayout.DEFAULT_SIZE, 896, Short.MAX_VALUE)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(105, 105, 105)
+                .addComponent(lblImagemOriginal, javax.swing.GroupLayout.DEFAULT_SIZE, 791, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(lblImagemOriginal, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(lblImagemOriginal, javax.swing.GroupLayout.DEFAULT_SIZE, 596, Short.MAX_VALUE)
         );
 
         jPanel2.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -165,14 +170,14 @@ public class MainFrame extends javax.swing.JFrame {
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(lblImagemNova, javax.swing.GroupLayout.DEFAULT_SIZE, 596, Short.MAX_VALUE)
+            .addComponent(lblImagemNova, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 1, 48)); // NOI18N
         jLabel2.setText("Status: ");
 
         lblStatus.setFont(new java.awt.Font("Tahoma", 1, 48)); // NOI18N
-        lblStatus.setText("Loading");
+        lblStatus.setText("Waiting");
 
         jsliderTempo.setMajorTickSpacing(1);
         jsliderTempo.setMaximum(10);
@@ -233,6 +238,46 @@ public class MainFrame extends javax.swing.JFrame {
             }
         });
 
+        jPanel4.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        jLabel3.setText("Canny Parameter:");
+
+        jsCannyParameter.setMajorTickSpacing(50);
+        jsCannyParameter.setMaximum(400);
+        jsCannyParameter.setMinorTickSpacing(10);
+        jsCannyParameter.setPaintLabels(true);
+        jsCannyParameter.setPaintTicks(true);
+        jsCannyParameter.setSnapToTicks(true);
+        jsCannyParameter.setToolTipText("");
+
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel3)
+                .addGap(18, 18, 18)
+                .addComponent(jsCannyParameter, javax.swing.GroupLayout.DEFAULT_SIZE, 724, Short.MAX_VALUE)
+                .addGap(34, 34, 34))
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jsCannyParameter, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        btnLoad.setText("Carregar Imagem");
+        btnLoad.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnLoadActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -240,44 +285,53 @@ public class MainFrame extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 900, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jsliderTempo, javax.swing.GroupLayout.PREFERRED_SIZE, 900, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btnPause, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(56, 56, 56)
-                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 900, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(181, 181, 181)
-                        .addComponent(btnGetImage)
-                        .addGap(64, 64, 64)
-                        .addComponent(jLabel2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(lblStatus)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 900, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jsliderTempo, javax.swing.GroupLayout.PREFERRED_SIZE, 900, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(btnPause, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(56, 56, 56)
+                                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 900, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(181, 181, 181)
+                                .addComponent(btnGetImage)
+                                .addGap(64, 64, 64)
+                                .addComponent(jLabel2)
+                                .addGap(18, 18, 18)
+                                .addComponent(lblStatus))))
+                    .addComponent(btnLoad))
                 .addContainerGap(227, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
+                .addComponent(btnLoad)
+                .addGap(8, 8, 8)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, 600, Short.MAX_VALUE)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 600, Short.MAX_VALUE))
+                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 600, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jsliderTempo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(17, 17, 17)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(jLabel2)
-                        .addComponent(lblStatus)
-                        .addComponent(btnGetImage, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(btnPause, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(151, Short.MAX_VALUE))
+                        .addComponent(btnGetImage, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(lblStatus))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnPause, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -315,6 +369,39 @@ public class MainFrame extends javax.swing.JFrame {
 
     }//GEN-LAST:event_btnGetImageActionPerformed
 
+    private void btnLoadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoadActionPerformed
+
+        JFileChooser jfc = new JFileChooser();
+
+        if (jfc.showOpenDialog(btnLoad) == JFileChooser.APPROVE_OPTION) {
+
+            VideoCapture webSource = new VideoCapture(jfc.getSelectedFile().getPath());
+
+            MatOfByte mem = new MatOfByte();
+
+            int count = 0;
+            while (webSource.grab() && (count < 100 || true)) {
+                Mat frame = new Mat();
+                webSource.retrieve(frame);
+                Imgcodecs.imencode(".bmp", frame, mem);
+                count++;
+                frames.add(frame);
+            }
+
+            if (frames.isEmpty()) {
+                lblStatus.setText("Error!");
+            } else {
+                lblStatus.setForeground(new Color(0, 102, 0));
+                lblStatus.setText("Running");
+                btnGetImage.setEnabled(true);
+                jsliderTempo.setMinimum(0);
+                jsliderTempo.setMaximum(frames.size() - 1);
+                jsliderTempo.setValue(0);
+                loaded = true;
+            }
+    }//GEN-LAST:event_btnLoadActionPerformed
+    }
+
     /**
      * @param args the command line arguments
      */
@@ -347,118 +434,98 @@ public class MainFrame extends javax.swing.JFrame {
             }
         });
 
-        VideoCapture webSource = new VideoCapture("teste02.mp4");
-        MatOfByte mem = new MatOfByte();
-        ArrayList<Mat> frames = new ArrayList();
-
-        int count = 0;
-        while (webSource.grab() && (count < 100 || true)) {
-            Mat frame = new Mat();
-            webSource.retrieve(frame);
-            Imgcodecs.imencode(".bmp", frame, mem);
-            count++;
-            frames.add(frame);
+        while(!loaded){
+            System.out.println("Waiting");
         }
+        
+        while (true) {
 
-        if (frames.isEmpty()) {
-            lblStatus.setText("Error!");
-        } else {
-            lblStatus.setForeground(new Color(0, 102, 0));
-            lblStatus.setText("Running");
-            btnGetImage.setEnabled(true);
-            jsliderTempo.setMinimum(0);
-            jsliderTempo.setMaximum(frames.size() - 1);
-            jsliderTempo.setValue(0);
+            BufferedImage imagemoriginal = matToBufferedImage(frames.get(jsliderTempo.getValue()));
+            imagemoriginal = resize(imagemoriginal);
 
-            while (true) {
+            BufferedImage imagemnova = matToBufferedImage(toRGB(toCanny((frames.get(jsliderTempo.getValue())))));
+            imagemnova = resize(imagemnova);
 
-                BufferedImage imagemoriginal = matToBufferedImage(frames.get(jsliderTempo.getValue()));
-                imagemoriginal = resize(imagemoriginal);
+            imagemnova = quantization(imagemnova);
 
-                BufferedImage imagemnova = matToBufferedImage(toRGB(toCanny((frames.get(jsliderTempo.getValue())))));
-                imagemnova = resize(imagemnova);
+            lblImagemOriginal.setIcon(new ImageIcon(imagemoriginal));
+            lblImagemOriginal.setHorizontalAlignment(SwingConstants.CENTER);
 
-                imagemnova = quantization(imagemnova);
+            lblImagemNova.setIcon(new ImageIcon(imagemnova));
+            lblImagemNova.setHorizontalAlignment(SwingConstants.CENTER);
 
-                lblImagemOriginal.setIcon(new ImageIcon(imagemoriginal));
-                lblImagemOriginal.setHorizontalAlignment(SwingConstants.CENTER);
-
-                lblImagemNova.setIcon(new ImageIcon(imagemnova));
-                lblImagemNova.setHorizontalAlignment(SwingConstants.CENTER);
-
-                if (!paused) {
-                    switch (jsliderVelocidade.getValue()) {
-                        case 1:
-                            if (jsliderTempo.getValue() + 1 < frames.size()) {
-                                jsliderTempo.setValue(jsliderTempo.getValue() + 1);
-                            } else {
-                                jsliderTempo.setValue(frames.size() - 1);
-                            }
-                            break;
-                        case 2:
-                            if (jsliderTempo.getValue() + 2 < frames.size()) {
-                                jsliderTempo.setValue(jsliderTempo.getValue() + 2);
-                            } else {
-                                jsliderTempo.setValue(frames.size() - 1);
-                            }
-                            break;
-                        case 3:
-                            if (jsliderTempo.getValue() + 3 < frames.size()) {
-                                jsliderTempo.setValue(jsliderTempo.getValue() + 3);
-                            } else {
-                                jsliderTempo.setValue(frames.size() - 1);
-                            }
-                            break;
-                        case 4:
-                            if (jsliderTempo.getValue() + 4 < frames.size()) {
-                                jsliderTempo.setValue(jsliderTempo.getValue() + 4);
-                            } else {
-                                jsliderTempo.setValue(frames.size() - 1);
-                            }
-                            break;
-                        case 5:
-                            if (jsliderTempo.getValue() + 5 < frames.size()) {
-                                jsliderTempo.setValue(jsliderTempo.getValue() + 5);
-                            } else {
-                                jsliderTempo.setValue(frames.size() - 1);
-                            }
-                            break;
-                        case 6:
-                            if (jsliderTempo.getValue() + 6 < frames.size()) {
-                                jsliderTempo.setValue(jsliderTempo.getValue() + 6);
-                            } else {
-                                jsliderTempo.setValue(frames.size() - 1);
-                            }
-                            break;
-                        case 7:
-                            if (jsliderTempo.getValue() + 7 < frames.size()) {
-                                jsliderTempo.setValue(jsliderTempo.getValue() + 7);
-                            } else {
-                                jsliderTempo.setValue(frames.size() - 1);
-                            }
-                            break;
-                        case 8:
-                            if (jsliderTempo.getValue() + 8 < frames.size()) {
-                                jsliderTempo.setValue(jsliderTempo.getValue() + 8);
-                            } else {
-                                jsliderTempo.setValue(frames.size() - 1);
-                            }
-                            break;
-                        case 9:
-                            if (jsliderTempo.getValue() + 9 < frames.size()) {
-                                jsliderTempo.setValue(jsliderTempo.getValue() + 9);
-                            } else {
-                                jsliderTempo.setValue(frames.size() - 1);
-                            }
-                            break;
-                        case 10:
-                            if (jsliderTempo.getValue() + 10 < frames.size()) {
-                                jsliderTempo.setValue(jsliderTempo.getValue() + 10);
-                            } else {
-                                jsliderTempo.setValue(frames.size() - 1);
-                            }
-                            break;
-                    }
+            if (!paused) {
+                switch (jsliderVelocidade.getValue()) {
+                    case 1:
+                        if (jsliderTempo.getValue() + 1 < frames.size()) {
+                            jsliderTempo.setValue(jsliderTempo.getValue() + 1);
+                        } else {
+                            jsliderTempo.setValue(frames.size() - 1);
+                        }
+                        break;
+                    case 2:
+                        if (jsliderTempo.getValue() + 2 < frames.size()) {
+                            jsliderTempo.setValue(jsliderTempo.getValue() + 2);
+                        } else {
+                            jsliderTempo.setValue(frames.size() - 1);
+                        }
+                        break;
+                    case 3:
+                        if (jsliderTempo.getValue() + 3 < frames.size()) {
+                            jsliderTempo.setValue(jsliderTempo.getValue() + 3);
+                        } else {
+                            jsliderTempo.setValue(frames.size() - 1);
+                        }
+                        break;
+                    case 4:
+                        if (jsliderTempo.getValue() + 4 < frames.size()) {
+                            jsliderTempo.setValue(jsliderTempo.getValue() + 4);
+                        } else {
+                            jsliderTempo.setValue(frames.size() - 1);
+                        }
+                        break;
+                    case 5:
+                        if (jsliderTempo.getValue() + 5 < frames.size()) {
+                            jsliderTempo.setValue(jsliderTempo.getValue() + 5);
+                        } else {
+                            jsliderTempo.setValue(frames.size() - 1);
+                        }
+                        break;
+                    case 6:
+                        if (jsliderTempo.getValue() + 6 < frames.size()) {
+                            jsliderTempo.setValue(jsliderTempo.getValue() + 6);
+                        } else {
+                            jsliderTempo.setValue(frames.size() - 1);
+                        }
+                        break;
+                    case 7:
+                        if (jsliderTempo.getValue() + 7 < frames.size()) {
+                            jsliderTempo.setValue(jsliderTempo.getValue() + 7);
+                        } else {
+                            jsliderTempo.setValue(frames.size() - 1);
+                        }
+                        break;
+                    case 8:
+                        if (jsliderTempo.getValue() + 8 < frames.size()) {
+                            jsliderTempo.setValue(jsliderTempo.getValue() + 8);
+                        } else {
+                            jsliderTempo.setValue(frames.size() - 1);
+                        }
+                        break;
+                    case 9:
+                        if (jsliderTempo.getValue() + 9 < frames.size()) {
+                            jsliderTempo.setValue(jsliderTempo.getValue() + 9);
+                        } else {
+                            jsliderTempo.setValue(frames.size() - 1);
+                        }
+                        break;
+                    case 10:
+                        if (jsliderTempo.getValue() + 10 < frames.size()) {
+                            jsliderTempo.setValue(jsliderTempo.getValue() + 10);
+                        } else {
+                            jsliderTempo.setValue(frames.size() - 1);
+                        }
+                        break;
                 }
             }
         }
@@ -466,12 +533,16 @@ public class MainFrame extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private static javax.swing.JButton btnGetImage;
+    private javax.swing.JButton btnLoad;
     private javax.swing.JButton btnPause;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
+    private static javax.swing.JSlider jsCannyParameter;
     private static javax.swing.JSlider jsliderTempo;
     private static javax.swing.JSlider jsliderVelocidade;
     private static javax.swing.JLabel lblImagemNova;

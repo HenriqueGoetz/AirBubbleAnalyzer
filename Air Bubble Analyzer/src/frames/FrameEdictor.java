@@ -3,16 +3,22 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package src;
+package frames;
 
 import java.awt.Color;
 import java.awt.Image;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
 
 /**
@@ -25,7 +31,7 @@ public class FrameEdictor extends javax.swing.JFrame {
      * Creates new form FrameEdictor
      */
     private int cor = 0; // 0 = WHITE // 1 = BLACK
-    private boolean countpixels = false;
+    private int onClick = 1; // 1 = Draw 2 = countPixels 3 = Escala
     private BufferedImage lastImage = null;
 
     public FrameEdictor() {
@@ -61,6 +67,12 @@ public class FrameEdictor extends javax.swing.JFrame {
         lblNumberOfPixels = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         lblAltura = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        lblEscala = new javax.swing.JLabel();
+        btnEscalar = new javax.swing.JButton();
+        jPanel3 = new javax.swing.JPanel();
+        txtNome = new javax.swing.JTextField();
+        btnSave = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -137,7 +149,7 @@ public class FrameEdictor extends javax.swing.JFrame {
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGap(13, 13, 13)
-                .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 46, Short.MAX_VALUE)
                 .addGap(28, 28, 28))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
@@ -161,6 +173,12 @@ public class FrameEdictor extends javax.swing.JFrame {
         lblAltura.setFont(new java.awt.Font("Tahoma", 0, 36)); // NOI18N
         lblAltura.setText("------");
 
+        jLabel4.setFont(new java.awt.Font("Tahoma", 0, 36)); // NOI18N
+        jLabel4.setText("Escala:");
+
+        lblEscala.setFont(new java.awt.Font("Tahoma", 0, 36)); // NOI18N
+        lblEscala.setText("------");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -169,9 +187,11 @@ public class FrameEdictor extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel2)
-                    .addComponent(jLabel3))
+                    .addComponent(jLabel3)
+                    .addComponent(jLabel4))
                 .addGap(151, 151, 151)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblEscala)
                     .addComponent(lblAltura)
                     .addComponent(lblNumberOfPixels))
                 .addContainerGap(259, Short.MAX_VALUE))
@@ -187,7 +207,50 @@ public class FrameEdictor extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel3)
                     .addComponent(lblAltura))
-                .addContainerGap(60, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel4)
+                    .addComponent(lblEscala))
+                .addContainerGap(24, Short.MAX_VALUE))
+        );
+
+        btnEscalar.setText("Escalar");
+        btnEscalar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEscalarActionPerformed(evt);
+            }
+        });
+
+        jPanel3.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        txtNome.setText("NomedaImagem");
+
+        btnSave.setText("Salvar");
+        btnSave.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSaveActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(txtNome, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnSave)
+                .addGap(0, 0, Short.MAX_VALUE))
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txtNome, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnSave))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -198,13 +261,17 @@ public class FrameEdictor extends javax.swing.JFrame {
                 .addGap(29, 29, 29)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addGap(55, 55, 55)
-                        .addComponent(btnCountPixels, javax.swing.GroupLayout.PREFERRED_SIZE, 234, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(btnCountPixels, javax.swing.GroupLayout.PREFERRED_SIZE, 234, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnEscalar, javax.swing.GroupLayout.PREFERRED_SIZE, 231, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(47, 47, 47)
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jpImage, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(48, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -212,11 +279,21 @@ public class FrameEdictor extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jpImage, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnCountPixels, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 10, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnCountPixels, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(btnEscalar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(0, 0, Short.MAX_VALUE)))))
+                .addContainerGap())
         );
 
         pack();
@@ -227,7 +304,7 @@ public class FrameEdictor extends javax.swing.JFrame {
 
     private void lblImagemMouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblImagemMouseDragged
 
-        if (!countpixels) {
+        if (onClick == 1) {
             ImageIcon img = (ImageIcon) lblImagem.getIcon();
             Image image = img.getImage();
             BufferedImage buffered = (BufferedImage) image;
@@ -256,11 +333,11 @@ public class FrameEdictor extends javax.swing.JFrame {
 
     private void btnCountPixelsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCountPixelsActionPerformed
 
-        if (countpixels == false) {
-            countpixels = true;
+        if (onClick != 2) {
+            onClick = 2;
             btnCountPixels.setText("Stop counting");
         } else {
-            countpixels = false;
+            onClick = 1;
             btnCountPixels.setText(" Count pixels");
         }
     }//GEN-LAST:event_btnCountPixelsActionPerformed
@@ -271,7 +348,7 @@ public class FrameEdictor extends javax.swing.JFrame {
         Image image = img.getImage();
         BufferedImage buffered = (BufferedImage) image;
 
-        if (!countpixels) {
+        if (onClick == 1) {
             Point position = MouseInfo.getPointerInfo().getLocation();
             Color color;
             if (cor == 0) {
@@ -283,7 +360,7 @@ public class FrameEdictor extends javax.swing.JFrame {
             buffered.setRGB((int) (position.getX() + lblImagem.getX() - lblImagem.getLocationOnScreen().x - (jpImage.getWidth() - buffered.getWidth()) / 2), (int) (position.getY() + lblImagem.getY() - lblImagem.getLocationOnScreen().y - (jpImage.getHeight() - buffered.getHeight()) / 2), color.getRGB());
             lblImagem.setIcon(new ImageIcon(buffered));
             lblImagem.setHorizontalAlignment(SwingConstants.CENTER);
-        } else {
+        } else if(onClick == 2){
             Point position = MouseInfo.getPointerInfo().getLocation();
             Point initialPoint = new Point((int) (position.getX() + lblImagem.getX() - lblImagem.getLocationOnScreen().x - (jpImage.getWidth() - buffered.getWidth()) / 2), (int) (position.getY() + lblImagem.getY() - lblImagem.getLocationOnScreen().y - (jpImage.getHeight() - buffered.getHeight()) / 2));
 
@@ -291,12 +368,47 @@ public class FrameEdictor extends javax.swing.JFrame {
             lblImagem.setIcon(new ImageIcon(buffered));
             lblImagem.setHorizontalAlignment(SwingConstants.CENTER);
 
+        }else if(onClick == 3){
+        
+            Point position = MouseInfo.getPointerInfo().getLocation();
+            Point initialPoint = new Point((int) (position.getX() + lblImagem.getX() - lblImagem.getLocationOnScreen().x - (jpImage.getWidth() - buffered.getWidth()) / 2), (int) (position.getY() + lblImagem.getY() - lblImagem.getLocationOnScreen().y - (jpImage.getHeight() - buffered.getHeight()) / 2));
+
+            lblEscala.setText(String.valueOf(String.valueOf(countPixelsFromImageWithoutPaint(buffered, initialPoint))));
+            btnEscalar.setText("Escalar");
+            onClick = 1;
         }
     }//GEN-LAST:event_lblImagemMouseClicked
 
     private void lblImagemMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblImagemMouseEntered
 
     }//GEN-LAST:event_lblImagemMouseEntered
+
+    private void btnEscalarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEscalarActionPerformed
+          if (onClick != 3) {
+            onClick = 3;
+        } else {
+            onClick = 1;
+            btnEscalar.setText("Cancelar");
+        }
+        
+    }//GEN-LAST:event_btnEscalarActionPerformed
+
+    private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
+        
+        if (txtNome.getText() != "") {
+
+                ImageIcon img = (ImageIcon) lblImagem.getIcon();
+                Image image = img.getImage();
+                BufferedImage buffered = (BufferedImage) image;
+            try {
+                ImageIO.write(buffered, "JPG", new File("imagens/" + txtNome.getText() + ".jpg"));
+                JOptionPane.showMessageDialog(null,"Imagem salva com sucesso.");
+            } catch (IOException ex) {
+                Logger.getLogger(FrameEdictor.class.getName()).log(Level.SEVERE, null, ex);
+            }
+    
+        }
+    }//GEN-LAST:event_btnSaveActionPerformed
 
     /**
      * @param args the command line arguments
@@ -336,16 +448,22 @@ public class FrameEdictor extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBlack;
     private javax.swing.JButton btnCountPixels;
+    private javax.swing.JButton btnEscalar;
+    private javax.swing.JButton btnSave;
     private javax.swing.JButton btnWhite;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jpImage;
     private javax.swing.JLabel lblAltura;
+    private javax.swing.JLabel lblEscala;
     private javax.swing.JLabel lblImagem;
     private javax.swing.JLabel lblNumberOfPixels;
+    private javax.swing.JTextField txtNome;
     // End of variables declaration//GEN-END:variables
 
     private int countPixelsFromImage(BufferedImage image, Point initialPoint) {
@@ -385,5 +503,48 @@ public class FrameEdictor extends javax.swing.JFrame {
         lblAltura.setText(String.valueOf(inf+sup-1));
         
         return nPixels;
+    }
+    
+    private int countPixelsFromImageWithoutPaint(BufferedImage image, Point initialPoint) {
+        int nPixels = 0;
+        Color black = new Color(0, 0, 0);
+        Color gray = new Color(128, 128, 128);
+
+        ArrayList<Point> points = new ArrayList();
+        ArrayList<Point> visitados = new ArrayList();
+
+        points.add(initialPoint);
+
+        while (!points.isEmpty()) {
+            Point point = points.get(0);
+
+            if (!(point.x == image.getWidth() || point.x == 0 || point.y == image.getHeight() || point.y == 0) && !(image.getRGB(point.x, point.y) != black.getRGB() || visitados.contains(point))) {
+                visitados.add(point);
+                points.add(new Point(point.x - 1, point.y));
+                points.add(new Point(point.x + 1, point.y));
+                points.add(new Point(point.x, point.y - 1));
+                points.add(new Point(point.x, point.y + 1));
+                nPixels++;
+            }
+            points.remove(point);
+        }
+        
+        
+        return nPixels;
+    }
+
+    private int countHorizontalPixels(BufferedImage buffered, Point initialPoint) {
+       
+        Color black = new Color(0,0,0);
+        int i = 1,j = 1;
+        while(initialPoint.x+i < buffered.getWidth() && buffered.getRGB(initialPoint.x+i, initialPoint.y) == black.getRGB()){
+            i++;
+        }
+        
+        while(initialPoint.x-j >=0 && buffered.getRGB(initialPoint.x-j, initialPoint.y) == black.getRGB()){
+            j++;
+        }
+        
+        return 1+j+i;
     }
 }
