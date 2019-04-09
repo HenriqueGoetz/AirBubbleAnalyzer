@@ -26,7 +26,7 @@ import org.opencv.imgproc.Imgproc;
  */
 public class FrameVideo extends javax.swing.JFrame {
 
-    private static ArrayList<Mat> frames = new ArrayList();
+    private static ArrayList<Mat> frames = new ArrayList<>();
     private static boolean paused = false;
 
     private double scalePixels; // Scale area selected.
@@ -1087,8 +1087,8 @@ public class FrameVideo extends javax.swing.JFrame {
         Color black = new Color(0, 0, 0);
         Color gray = new Color(128, 128, 128);
 
-        ArrayList<Point> points = new ArrayList();
-        ArrayList<Point> visitados = new ArrayList();
+        ArrayList<Point> points = new ArrayList<>();
+        ArrayList<Point> visitados = new ArrayList<>();
 
         points.add(initialPoint);
 
