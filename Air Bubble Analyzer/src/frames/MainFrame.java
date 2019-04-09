@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import org.opencv.core.Core;
@@ -116,10 +115,10 @@ public class MainFrame extends javax.swing.JFrame {
     private void btnLoadVideoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoadVideoActionPerformed
         JFileChooser jfc = new JFileChooser();
 
-        if (jfc.showOpenDialog(btnLoadImage) == JFileChooser.APPROVE_OPTION) {
+        if (jfc.showOpenDialog(btnLoadVideo) == JFileChooser.APPROVE_OPTION) {
 
             VideoCapture webSource = new VideoCapture(jfc.getSelectedFile().getPath());
-            ArrayList<Mat> frames = new ArrayList();
+            ArrayList<Mat> frames = new ArrayList<>();
             MatOfByte mem = new MatOfByte();
 
             

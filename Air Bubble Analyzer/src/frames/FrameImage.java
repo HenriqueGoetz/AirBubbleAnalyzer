@@ -636,8 +636,8 @@ public class FrameImage extends javax.swing.JFrame {
         Color black = new Color(0, 0, 0);
         Color gray = new Color(128, 128, 128);
 
-        ArrayList<Point> points = new ArrayList();
-        ArrayList<Point> visitados = new ArrayList();
+        ArrayList<Point> points = new ArrayList<>();
+        ArrayList<Point> visitados = new ArrayList<>();
 
         points.add(initialPoint);
 
@@ -662,8 +662,8 @@ public class FrameImage extends javax.swing.JFrame {
         int nPixels = 0;
         Color black = new Color(0, 0, 0);
         Color gray = new Color(128, 128, 128);
-        ArrayList<Point> points = new ArrayList();
-        ArrayList<Point> visitados = new ArrayList();
+        ArrayList<Point> points = new ArrayList<>();
+        ArrayList<Point> visitados = new ArrayList<>();
 
         points.add(initialPoint);
 
