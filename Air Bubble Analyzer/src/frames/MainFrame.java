@@ -101,7 +101,7 @@ public class MainFrame extends javax.swing.JFrame {
             try {
                 BufferedImage image = ImageIO.read(jfc.getSelectedFile());
                 this.setVisible(false);
-                FrameImage newFrame = new FrameImage();
+                DialogImage newFrame = new DialogImage();
                 newFrame.setModal(true);
                 newFrame.StartFrame(image);
                 this.setVisible(true);
@@ -133,7 +133,7 @@ public class MainFrame extends javax.swing.JFrame {
 
             if (frames.size() > 0) {
                 this.setVisible(false);
-                FrameVideo videoFrame = new FrameVideo(frames);
+                DialogVideo videoFrame = new DialogVideo(frames);
                 videoFrame.setModal(true);
                 videoFrame.setFPS(fps);
                 videoFrame.StartFrameScaleImage();

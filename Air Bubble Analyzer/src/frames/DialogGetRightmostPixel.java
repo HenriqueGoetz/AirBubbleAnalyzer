@@ -20,17 +20,17 @@ import org.opencv.core.Mat;
  *
  * @author Henrique Goetz
  */
-public class FrameGetRightmostPixel extends javax.swing.JDialog {
+public class DialogGetRightmostPixel extends javax.swing.JDialog {
 
     /**
-     * Creates new form FrameGetRightmostPixel
+     * Creates new form DialogGetRightmostPixel
      */
-    private int rightmostPixel;
+    private int rightmostPixel = -1;
     private BufferedImage imageOriginal;
 
     private boolean closed = true; // Boolean to know if the jframe was closed or the button was clicked.
 
-    public FrameGetRightmostPixel() {
+    public DialogGetRightmostPixel() {
         initComponents();
         setLocationRelativeTo(null);
     }
@@ -131,8 +131,10 @@ public class FrameGetRightmostPixel extends javax.swing.JDialog {
     }//GEN-LAST:event_lblImageMouseClicked
 
     private void btnFinishActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFinishActionPerformed
-        closed = false;
-        this.setVisible(false);
+        if (rightmostPixel != -1) {
+            closed = false;
+            this.setVisible(false);
+        }
     }//GEN-LAST:event_btnFinishActionPerformed
 
     /**
@@ -152,20 +154,22 @@ public class FrameGetRightmostPixel extends javax.swing.JDialog {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(FrameGetRightmostPixel.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(DialogGetRightmostPixel.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(FrameGetRightmostPixel.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(DialogGetRightmostPixel.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(FrameGetRightmostPixel.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(DialogGetRightmostPixel.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(FrameGetRightmostPixel.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(DialogGetRightmostPixel.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        //</editor-fold>
         //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> {
-            new FrameGetRightmostPixel().setVisible(true);
+            new DialogGetRightmostPixel().setVisible(true);
         });
     }
 
@@ -197,11 +201,8 @@ public class FrameGetRightmostPixel extends javax.swing.JDialog {
                 newH = (int) (img.getHeight() / ((double) img.getWidth() / w));
             } else {
                 newH = h;
-                newW = (int) (img.getWidth() / ((double)img.getHeight() / h));
+                newW = (int) (img.getWidth() / ((double) img.getHeight() / h));
             }
-
-            System.out.println(newW);
-            System.out.println(newH);
 
             Image tmp = img.getScaledInstance(newW, newH, Image.SCALE_SMOOTH);
             BufferedImage dimg = new BufferedImage(newW, newH, img.getType());

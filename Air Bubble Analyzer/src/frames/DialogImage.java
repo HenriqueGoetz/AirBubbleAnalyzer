@@ -26,10 +26,10 @@ import javax.swing.SwingConstants;
  *
  * @author Henrique Goetz
  */
-public class FrameImage extends javax.swing.JDialog {
+public class DialogImage extends javax.swing.JDialog {
 
     /**
-     * Creates new form FrameImage
+     * Creates new form DialogImage
      */
     //Defines
     private static final int WHITE = 0;
@@ -44,7 +44,7 @@ public class FrameImage extends javax.swing.JDialog {
     private double scalePixels; // Scale area selected.
     private double scaleCm;     // Area provided.
 
-    public FrameImage() {
+    public DialogImage() {
         initComponents();
         setLocationRelativeTo(null);
     }
@@ -52,12 +52,12 @@ public class FrameImage extends javax.swing.JDialog {
     public void StartFrame(BufferedImage image) {
         lblImage.setIcon(new ImageIcon(resize(image)));
         lblImage.setHorizontalAlignment(SwingConstants.CENTER);
-        
+
         DialogScale.setLocationRelativeTo(null);
         DialogScale.setModal(true);
         DialogScale.setVisible(true);
         scaleCm = Double.valueOf(txtArea.getText());
-        
+
         DecimalFormat df = new DecimalFormat("0.00");
         lblScaleCm.setText(String.valueOf(df.format(scaleCm)));
         this.setVisible(true);
@@ -154,7 +154,6 @@ public class FrameImage extends javax.swing.JDialog {
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Speed Analyzer");
         setMinimumSize(new java.awt.Dimension(1800, 900));
-        setPreferredSize(new java.awt.Dimension(1800, 900));
 
         btnCountPixels.setText(" Count pixels");
         btnCountPixels.addActionListener(new java.awt.event.ActionListener() {
@@ -518,17 +517,17 @@ public class FrameImage extends javax.swing.JDialog {
                 DecimalFormat df = new DecimalFormat("0.00");
                 Point position = MouseInfo.getPointerInfo().getLocation();
                 Point initialPoint = new Point((int) (position.getX() + lblImage.getX() - lblImage.getLocationOnScreen().x - (jpImage.getWidth() - buffered.getWidth()) / 2), (int) (position.getY() + lblImage.getY() - lblImage.getLocationOnScreen().y - (jpImage.getHeight() - buffered.getHeight()) / 2));
-                
+
                 int areaPixels = countPixelsFromImagePainting(buffered, initialPoint);
                 double areaCm = areaPixels * scaleCm / scalePixels;
                 int hightPixels = countVerticalPixels(buffered, initialPoint);
                 double hightCm = hightPixels * Math.sqrt(scaleCm) / Math.sqrt(scalePixels);
-                
+
                 lblAreaPixels.setText(String.valueOf(areaPixels));
                 lblAreaCm.setText(String.valueOf(df.format(areaCm)));
                 lblHightPixels.setText(String.valueOf(hightPixels));
                 lblHightCm.setText(String.valueOf(df.format(hightCm)));
-                
+
                 lblImage.setIcon(new ImageIcon(buffered));
                 lblImage.setHorizontalAlignment(SwingConstants.CENTER);
                 break;
@@ -557,7 +556,7 @@ public class FrameImage extends javax.swing.JDialog {
                 ImageIO.write(buffered, "JPG", new File("imagens/" + txtNome.getText() + ".jpg"));
                 JOptionPane.showMessageDialog(null, "Imagem salva com sucesso.");
             } catch (IOException ex) {
-                Logger.getLogger(FrameImage.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(DialogImage.class.getName()).log(Level.SEVERE, null, ex);
             }
 
         }
@@ -586,19 +585,20 @@ public class FrameImage extends javax.swing.JDialog {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(FrameImage.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(DialogImage.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(FrameImage.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(DialogImage.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(FrameImage.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(DialogImage.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(FrameImage.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(DialogImage.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> {
-            new FrameImage().setVisible(true);
+            new DialogImage().setVisible(true);
         });
 
     }
@@ -683,14 +683,14 @@ public class FrameImage extends javax.swing.JDialog {
             }
             points.remove(point);
         }
-        
+
         return nPixels;
     }
-    
+
     private int countVerticalPixels(BufferedImage image, Point initialPoint) {
         int sup = 0, inf = 0;
         Color black = new Color(0, 0, 0);
-        
+
         Color gray = new Color(128, 128, 128);
 
         while (image.getRGB(initialPoint.x, initialPoint.y - sup) == black.getRGB() || image.getRGB(initialPoint.x, initialPoint.y - sup) == gray.getRGB()) {
@@ -716,9 +716,6 @@ public class FrameImage extends javax.swing.JDialog {
                 newH = h;
                 newW = (int) (img.getWidth() / ((double) img.getHeight() / h));
             }
-
-            System.out.println(newW);
-            System.out.println(newH);
 
             Image tmp = img.getScaledInstance(newW, newH, Image.SCALE_SMOOTH);
             BufferedImage dimg = new BufferedImage(newW, newH, img.getType());

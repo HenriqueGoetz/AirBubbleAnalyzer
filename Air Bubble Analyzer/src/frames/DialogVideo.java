@@ -24,7 +24,7 @@ import org.opencv.imgproc.Imgproc;
  *
  * @author Henrique Goetz
  */
-public class FrameVideo extends javax.swing.JDialog {
+public class DialogVideo extends javax.swing.JDialog {
 
     private static ArrayList<Mat> frames = new ArrayList<>();
     private static boolean paused = false;
@@ -50,7 +50,7 @@ public class FrameVideo extends javax.swing.JDialog {
      *
      * @param frame
      */
-    public FrameVideo(ArrayList<Mat> frame) {
+    public DialogVideo(ArrayList<Mat> frame) {
         initComponents();
         frames = frame;
         jsTime.setMaximum(frames.size() - 1);
@@ -83,8 +83,6 @@ public class FrameVideo extends javax.swing.JDialog {
             scaleCm = Float.parseFloat(txtArea.getText());
             lblAreaBaseScale.setText(txtArea.getText());
             DialogScaleImage.setVisible(true);
-        } else {
-
         }
     }
 
@@ -94,7 +92,7 @@ public class FrameVideo extends javax.swing.JDialog {
         DialogScale.setVisible(true);
     }
 
-    private FrameVideo() {
+    private DialogVideo() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -205,10 +203,7 @@ public class FrameVideo extends javax.swing.JDialog {
 
     // To change status and options
     private boolean isRunning() {
-        if (!paused) {
-            return true;
-        }
-        return false;
+        return !paused;
     }
 
     private void run() {
@@ -222,7 +217,7 @@ public class FrameVideo extends javax.swing.JDialog {
     }
 
     private boolean isDrawing() {
-        if (onClick == 0) {
+        if (onClick == DRAW) {
             return true;
         }
         return false;
@@ -826,7 +821,7 @@ public class FrameVideo extends javax.swing.JDialog {
     private void btnGetStartPointActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGetStartPointActionPerformed
         pause();
         lblStartPointFrame.setText(String.valueOf(jsTime.getValue()));
-        FrameGetRightmostPixel frame = new FrameGetRightmostPixel();
+        DialogGetRightmostPixel frame = new DialogGetRightmostPixel();
         frame.setImage(frames.get(jsTime.getValue()));
         frame.setModal(true);
         frame.setVisible(true);
@@ -838,7 +833,7 @@ public class FrameVideo extends javax.swing.JDialog {
     private void btnGetEndPointActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGetEndPointActionPerformed
         pause();
         lblEndPointFrame.setText(String.valueOf(jsTime.getValue()));
-        FrameGetRightmostPixel frame = new FrameGetRightmostPixel();
+        DialogGetRightmostPixel frame = new DialogGetRightmostPixel();
         frame.setImage(frames.get(jsTime.getValue()));
         frame.setModal(true);
         frame.setVisible(true);
@@ -945,19 +940,20 @@ public class FrameVideo extends javax.swing.JDialog {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(FrameVideo.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(DialogVideo.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(FrameVideo.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(DialogVideo.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(FrameVideo.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(DialogVideo.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(FrameVideo.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(DialogVideo.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> {
-            new FrameVideo().setVisible(true);
+            new DialogVideo().setVisible(true);
         });
 
     }
