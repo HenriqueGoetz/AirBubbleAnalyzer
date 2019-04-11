@@ -26,13 +26,23 @@ import javax.swing.SwingConstants;
  *
  * @author Henrique Goetz
  */
-public class FrameImage extends javax.swing.JFrame {
+public class FrameImage extends javax.swing.JDialog {
 
     /**
      * Creates new form FrameImage
      */
-    static int onClick = 0; // 0 - Scale 1 - Draw 2 - Count  
+    //Defines
+    private static final int WHITE = 0;
+    private static final int BLACK = 1;
+    private static final int SCALE = 2;
+    private static final int DRAW = 1;
+    private static final int COUNT = 0;
+
+    static int onClick = SCALE; // 0 - Count 1 - Draw 2 - Scale  
     static int cor = 0; // 0 - While  1 - Black
+
+    private double scalePixels; // Scale area selected.
+    private double scaleCm;     // Area provided.
 
     public FrameImage() {
         initComponents();
@@ -42,37 +52,17 @@ public class FrameImage extends javax.swing.JFrame {
     public void StartFrame(BufferedImage image) {
         lblImage.setIcon(new ImageIcon(resize(image)));
         lblImage.setHorizontalAlignment(SwingConstants.CENTER);
-        this.setVisible(true);
+        
         DialogScale.setLocationRelativeTo(null);
         DialogScale.setModal(true);
         DialogScale.setVisible(true);
-        lblAreaBase.setText(txtArea.getText());
-        lblScaleCm.setText(txtArea.getText());
+        scaleCm = Double.valueOf(txtArea.getText());
+        
+        DecimalFormat df = new DecimalFormat("0.00");
+        lblScaleCm.setText(String.valueOf(df.format(scaleCm)));
+        this.setVisible(true);
     }
 
-      private static BufferedImage resize(BufferedImage img) {
-        int w = 750;
-        int h = 550;
-        if (img.getHeight() > h || img.getWidth() > w) {
-            int newW, newH;
-
-            if (img.getHeight() / h > img.getWidth() / w) {
-                newH = h;
-                newW = img.getWidth() / (img.getHeight() / h);
-            } else {
-                newW = w;
-                newH = img.getHeight() / (img.getWidth() / w);
-            }
-
-            Image tmp = img.getScaledInstance(newW, newH, Image.SCALE_SMOOTH);
-            BufferedImage dimg = new BufferedImage(newW, newH, img.getType());
-            Graphics2D g2d = dimg.createGraphics();
-            g2d.drawImage(tmp, 0, 0, null);
-            g2d.dispose();
-            return dimg;
-        }
-        return img;
-    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -95,23 +85,25 @@ public class FrameImage extends javax.swing.JFrame {
         btnWhite = new javax.swing.JButton();
         btnBlack = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
-        jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
-        jLabel10 = new javax.swing.JLabel();
-        lblArea = new javax.swing.JLabel();
-        lblHight = new javax.swing.JLabel();
-        lblScale = new javax.swing.JLabel();
-        jLabel9 = new javax.swing.JLabel();
+        lblAreaPixels = new javax.swing.JLabel();
+        lblHightPixels = new javax.swing.JLabel();
         lblAreaCm = new javax.swing.JLabel();
         lblHightCm = new javax.swing.JLabel();
-        lblScaleCm = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
+        jLabel11 = new javax.swing.JLabel();
+        jLabel12 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
         txtNome = new javax.swing.JTextField();
         btnSave = new javax.swing.JButton();
         jPanel4 = new javax.swing.JPanel();
         jLabel7 = new javax.swing.JLabel();
-        lblAreaBase = new javax.swing.JLabel();
+        jLabel10 = new javax.swing.JLabel();
+        jLabel9 = new javax.swing.JLabel();
+        lblScalePixels = new javax.swing.JLabel();
+        lblScaleCm = new javax.swing.JLabel();
 
         DialogScale.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         DialogScale.setMinimumSize(new java.awt.Dimension(360, 180));
@@ -159,9 +151,10 @@ public class FrameImage extends javax.swing.JFrame {
                 .addGap(28, 28, 28))
         );
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Speed Analyzer");
-        setPreferredSize(new java.awt.Dimension(1460, 970));
+        setMinimumSize(new java.awt.Dimension(1800, 900));
+        setPreferredSize(new java.awt.Dimension(1800, 900));
 
         btnCountPixels.setText(" Count pixels");
         btnCountPixels.addActionListener(new java.awt.event.ActionListener() {
@@ -171,7 +164,8 @@ public class FrameImage extends javax.swing.JFrame {
         });
 
         jpImage.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        jpImage.setPreferredSize(new java.awt.Dimension(1400, 700));
+        jpImage.setMinimumSize(new java.awt.Dimension(1500, 800));
+        jpImage.setPreferredSize(new java.awt.Dimension(1500, 800));
 
         lblImage.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         lblImage.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
@@ -189,11 +183,11 @@ public class FrameImage extends javax.swing.JFrame {
         jpImage.setLayout(jpImageLayout);
         jpImageLayout.setHorizontalGroup(
             jpImageLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(lblImage, javax.swing.GroupLayout.DEFAULT_SIZE, 1396, Short.MAX_VALUE)
+            .addComponent(lblImage, javax.swing.GroupLayout.DEFAULT_SIZE, 1496, Short.MAX_VALUE)
         );
         jpImageLayout.setVerticalGroup(
             jpImageLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(lblImage, javax.swing.GroupLayout.DEFAULT_SIZE, 696, Short.MAX_VALUE)
+            .addComponent(lblImage, javax.swing.GroupLayout.DEFAULT_SIZE, 796, Short.MAX_VALUE)
         );
 
         jPanel2.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -225,13 +219,13 @@ public class FrameImage extends javax.swing.JFrame {
                 .addComponent(btnWhite, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(btnBlack, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(24, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGap(13, 13, 13)
-                .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 44, Short.MAX_VALUE)
+                .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGap(28, 28, 28))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
@@ -243,38 +237,22 @@ public class FrameImage extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
-        jLabel2.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
-        jLabel2.setText("Número de pixels na região:");
+        jPanel1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         jLabel3.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         jLabel3.setText("Altura do bolsão:");
 
-        jLabel4.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
-        jLabel4.setText("Escala:");
+        lblAreaPixels.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        lblAreaPixels.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblAreaPixels.setText("------");
+        lblAreaPixels.setFocusable(false);
+        lblAreaPixels.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
 
-        jLabel10.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel10.setText(" Pixels");
-
-        lblArea.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
-        lblArea.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lblArea.setText("------");
-        lblArea.setFocusable(false);
-        lblArea.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
-
-        lblHight.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
-        lblHight.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lblHight.setText("------");
-        lblHight.setFocusable(false);
-        lblHight.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
-
-        lblScale.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
-        lblScale.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lblScale.setText("------");
-        lblScale.setFocusable(false);
-        lblScale.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
-
-        jLabel9.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel9.setText("cm");
+        lblHightPixels.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        lblHightPixels.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblHightPixels.setText("------");
+        lblHightPixels.setFocusable(false);
+        lblHightPixels.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
 
         lblAreaCm.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         lblAreaCm.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -286,68 +264,66 @@ public class FrameImage extends javax.swing.JFrame {
         lblHightCm.setText("------");
         lblHightCm.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
 
-        lblScaleCm.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
-        lblScaleCm.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lblScaleCm.setText("------");
-        lblScaleCm.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jLabel2.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        jLabel2.setText("Área:");
+
+        jLabel4.setText("Pixels");
+
+        jLabel8.setText("cm²");
+
+        jLabel11.setText("Pixels");
+
+        jLabel12.setText("cm ");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                .addComponent(jLabel2)
-                                .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.LEADING))
-                            .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.LEADING))
-                        .addGap(47, 47, 47)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(lblScale, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(lblHight, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(lblArea, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(58, 58, 58)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(lblScaleCm, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(lblHightCm, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(lblAreaCm, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(113, 113, 113))
+                        .addComponent(lblAreaPixels, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel4)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(lblAreaCm, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel8))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel2)
+                            .addComponent(jLabel3))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(lblHightPixels, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel11)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(lblHightCm, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel12)))
+                .addGap(9, 9, 9))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel9)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(lblAreaCm)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(lblHightCm)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(lblScaleCm))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(24, 24, 24)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(jLabel2)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel3)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel4))
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(lblArea)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(lblHight)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(lblScale)))))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(jLabel2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblAreaPixels)
+                    .addComponent(jLabel4)
+                    .addComponent(lblAreaCm)
+                    .addComponent(jLabel8))
+                .addGap(18, 18, 18)
+                .addComponent(jLabel3)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblHightPixels)
+                    .addComponent(jLabel11)
+                    .addComponent(lblHightCm)
+                    .addComponent(jLabel12))
+                .addContainerGap(26, Short.MAX_VALUE))
         );
 
         jPanel3.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -385,32 +361,59 @@ public class FrameImage extends javax.swing.JFrame {
         jPanel4.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         jLabel7.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        jLabel7.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel7.setText("Escala Informada:");
 
-        lblAreaBase.setFont(new java.awt.Font("Tahoma", 0, 36)); // NOI18N
+        jLabel10.setText("Pixels");
+
+        jLabel9.setText("cm²");
+
+        lblScalePixels.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        lblScalePixels.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblScalePixels.setText("------");
+        lblScalePixels.setFocusable(false);
+        lblScalePixels.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
+
+        lblScaleCm.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        lblScaleCm.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblScaleCm.setText("------");
+        lblScaleCm.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
-                .addContainerGap(41, Short.MAX_VALUE)
+                .addContainerGap()
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
-                        .addComponent(jLabel7)
-                        .addGap(35, 35, 35))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
-                        .addComponent(lblAreaBase)
-                        .addGap(77, 77, 77))))
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addGap(10, 10, 10)
+                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(jPanel4Layout.createSequentialGroup()
+                                .addComponent(jLabel10)
+                                .addGap(18, 18, 18)
+                                .addComponent(lblScalePixels, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addGroup(jPanel4Layout.createSequentialGroup()
+                                .addComponent(jLabel9)
+                                .addGap(27, 27, 27)
+                                .addComponent(lblScaleCm, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                    .addComponent(jLabel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
-                .addGap(39, 39, 39)
+                .addContainerGap()
                 .addComponent(jLabel7)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(lblAreaBase)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(17, 17, 17)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblScalePixels))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblScaleCm)
+                    .addComponent(jLabel9))
+                .addContainerGap(22, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -418,36 +421,34 @@ public class FrameImage extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(29, 29, 29)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGap(55, 55, 55)
-                        .addComponent(btnCountPixels, javax.swing.GroupLayout.PREFERRED_SIZE, 234, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(28, 28, 28)
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 552, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jpImage, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(30, Short.MAX_VALUE))
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnCountPixels, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jpImage, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jpImage, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jpImage, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
                         .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(btnCountPixels, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(90, Short.MAX_VALUE))
+                        .addGap(12, 12, 12)
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btnCountPixels, javax.swing.GroupLayout.PREFERRED_SIZE, 91, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -455,18 +456,18 @@ public class FrameImage extends javax.swing.JFrame {
 
     private void btnCountPixelsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCountPixelsActionPerformed
 
-        if (onClick != 2) {
-            onClick = 2;
+        if (onClick == DRAW) {
+            onClick = COUNT;
             btnCountPixels.setText("Stop counting");
-        } else {
-            onClick = 1;
+        } else if (onClick == COUNT) {
+            onClick = DRAW;
             btnCountPixels.setText(" Count pixels");
         }
     }//GEN-LAST:event_btnCountPixelsActionPerformed
 
     private void lblImageMouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblImageMouseDragged
 
-        if (onClick == 1) {
+        if (onClick == DRAW) {
             ImageIcon img = (ImageIcon) lblImage.getIcon();
             Image image = img.getImage();
             BufferedImage buffered = (BufferedImage) image;
@@ -478,7 +479,6 @@ public class FrameImage extends javax.swing.JFrame {
             } else {
                 color = new Color(0, 0, 0);
             }
-
             buffered.setRGB((int) (position.getX() + lblImage.getX() - lblImage.getLocationOnScreen().x - (jpImage.getWidth() - buffered.getWidth()) / 2), (int) (position.getY() + lblImage.getY() - lblImage.getLocationOnScreen().y - (jpImage.getHeight() - buffered.getHeight()) / 2), color.getRGB());
             lblImage.setIcon(new ImageIcon(buffered));
             lblImage.setHorizontalAlignment(SwingConstants.CENTER);
@@ -492,14 +492,16 @@ public class FrameImage extends javax.swing.JFrame {
         BufferedImage buffered = (BufferedImage) image;
 
         switch (onClick) {
-            case 0: {
+            case SCALE: {
                 Point position = MouseInfo.getPointerInfo().getLocation();
                 Point initialPoint = new Point((int) (position.getX() + lblImage.getX() - lblImage.getLocationOnScreen().x - (jpImage.getWidth() - buffered.getWidth()) / 2), (int) (position.getY() + lblImage.getY() - lblImage.getLocationOnScreen().y - (jpImage.getHeight() - buffered.getHeight()) / 2));
-                lblScale.setText(String.valueOf(countPixelsFromImageWithoutPaint(buffered, initialPoint)));
-                onClick = 1;
+                scalePixels = countPixelsFromImageWithoutPaint(buffered, initialPoint);
+                lblScalePixels.setText(String.valueOf(scalePixels));
+                onClick = DRAW;
                 break;
             }
-            case 1: {
+
+            case DRAW: {
                 Point position = MouseInfo.getPointerInfo().getLocation();
                 Color color;
                 if (cor == 0) {
@@ -512,19 +514,25 @@ public class FrameImage extends javax.swing.JFrame {
                 lblImage.setHorizontalAlignment(SwingConstants.CENTER);
                 break;
             }
-            case 2: {
+            case COUNT: {
                 DecimalFormat df = new DecimalFormat("0.00");
                 Point position = MouseInfo.getPointerInfo().getLocation();
                 Point initialPoint = new Point((int) (position.getX() + lblImage.getX() - lblImage.getLocationOnScreen().x - (jpImage.getWidth() - buffered.getWidth()) / 2), (int) (position.getY() + lblImage.getY() - lblImage.getLocationOnScreen().y - (jpImage.getHeight() - buffered.getHeight()) / 2));
-                lblArea.setText(String.valueOf(countPixelsFromImage(buffered, initialPoint)));
-                lblAreaCm.setText(String.valueOf(df.format(Float.parseFloat(lblArea.getText()) * Float.parseFloat(lblScaleCm.getText()) / Float.parseFloat(lblScale.getText()))));
-                lblHight.setText(String.valueOf(countVerticalPixels(buffered,initialPoint)));
-                lblHightCm.setText(String.valueOf(df.format(Float.parseFloat(lblHight.getText()) * Math.sqrt(Float.parseFloat(lblScaleCm.getText())) / Math.sqrt(Float.parseFloat(lblScale.getText())))));
+                
+                int areaPixels = countPixelsFromImagePainting(buffered, initialPoint);
+                double areaCm = areaPixels * scaleCm / scalePixels;
+                int hightPixels = countVerticalPixels(buffered, initialPoint);
+                double hightCm = hightPixels * Math.sqrt(scaleCm) / Math.sqrt(scalePixels);
+                
+                lblAreaPixels.setText(String.valueOf(areaPixels));
+                lblAreaCm.setText(String.valueOf(df.format(areaCm)));
+                lblHightPixels.setText(String.valueOf(hightPixels));
+                lblHightCm.setText(String.valueOf(df.format(hightCm)));
+                
                 lblImage.setIcon(new ImageIcon(buffered));
                 lblImage.setHorizontalAlignment(SwingConstants.CENTER);
                 break;
             }
-
             default:
                 break;
         }
@@ -604,46 +612,41 @@ public class FrameImage extends javax.swing.JFrame {
     private javax.swing.JButton btnWhite;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
-    private javax.swing.JPanel jpImage;
-    private javax.swing.JLabel lblArea;
-    private javax.swing.JLabel lblAreaBase;
+    private static javax.swing.JPanel jpImage;
     private javax.swing.JLabel lblAreaCm;
-    private javax.swing.JLabel lblHight;
+    private javax.swing.JLabel lblAreaPixels;
     private javax.swing.JLabel lblHightCm;
+    private javax.swing.JLabel lblHightPixels;
     private javax.swing.JLabel lblImage;
-    private javax.swing.JLabel lblScale;
     private javax.swing.JLabel lblScaleCm;
+    private javax.swing.JLabel lblScalePixels;
     private javax.swing.JTextField txtArea;
     private javax.swing.JTextField txtNome;
     // End of variables declaration//GEN-END:variables
 
-    
     // Other functions
-    
     private int countPixelsFromImageWithoutPaint(BufferedImage image, Point initialPoint) {
         int nPixels = 0;
         Color black = new Color(0, 0, 0);
-        Color gray = new Color(128, 128, 128);
-
         ArrayList<Point> points = new ArrayList<>();
         ArrayList<Point> visitados = new ArrayList<>();
-
         points.add(initialPoint);
-
         while (!points.isEmpty()) {
             Point point = points.get(0);
-
             if (!(point.x == image.getWidth() || point.x == 0 || point.y == image.getHeight() || point.y == 0) && !(image.getRGB(point.x, point.y) != black.getRGB() || visitados.contains(point))) {
                 visitados.add(point);
                 points.add(new Point(point.x - 1, point.y));
@@ -654,11 +657,10 @@ public class FrameImage extends javax.swing.JFrame {
             }
             points.remove(point);
         }
-
         return nPixels;
     }
 
-    private int countPixelsFromImage(BufferedImage image, Point initialPoint) {
+    private int countPixelsFromImagePainting(BufferedImage image, Point initialPoint) {
         int nPixels = 0;
         Color black = new Color(0, 0, 0);
         Color gray = new Color(128, 128, 128);
@@ -670,7 +672,7 @@ public class FrameImage extends javax.swing.JFrame {
         while (!points.isEmpty()) {
             Point point = points.get(0);
 
-            if (!(point.x == image.getWidth() || point.x == 0 || point.y == image.getHeight() || point.y == 0) && !(image.getRGB(point.x, point.y) != black.getRGB() || visitados.contains(point))) {
+            if (!(point.x == image.getWidth() || point.x == 0 || point.y == image.getHeight() || point.y == 0) && (image.getRGB(point.x, point.y) == black.getRGB() || (image.getRGB(point.x, point.y) == gray.getRGB())) && !visitados.contains(point)) {
                 visitados.add(point);
                 image.setRGB(point.x, point.y, gray.getRGB());
                 points.add(new Point(point.x - 1, point.y));
@@ -686,18 +688,46 @@ public class FrameImage extends javax.swing.JFrame {
     }
     
     private int countVerticalPixels(BufferedImage image, Point initialPoint) {
-        int sup=0, inf = 0;
+        int sup = 0, inf = 0;
+        Color black = new Color(0, 0, 0);
+        
         Color gray = new Color(128, 128, 128);
-         
-        while(image.getRGB(initialPoint.x, initialPoint.y-sup) == gray.getRGB()){
+
+        while (image.getRGB(initialPoint.x, initialPoint.y - sup) == black.getRGB() || image.getRGB(initialPoint.x, initialPoint.y - sup) == gray.getRGB()) {
             sup++;
         }
-        while(image.getRGB(initialPoint.x, initialPoint.y+inf) == gray.getRGB()){
+        while (image.getRGB(initialPoint.x, initialPoint.y + inf) == black.getRGB() || image.getRGB(initialPoint.x, initialPoint.y - sup) == gray.getRGB()) {
             inf++;
         }
-        
-        return inf+sup-1;
+        return inf + sup - 1;
     }
-    
-    
+
+    private static BufferedImage resize(BufferedImage img) {
+        int w = jpImage.getSize().width - 10; // -10 Padding
+        int h = jpImage.getSize().height - 10; // -10 Padding
+
+        if (img.getHeight() > h || img.getWidth() > w) {
+            int newW, newH;
+
+            if ((double) img.getHeight() / h < (double) img.getWidth() / w) {
+                newW = w;
+                newH = (int) (img.getHeight() / ((double) img.getWidth() / w));
+            } else {
+                newH = h;
+                newW = (int) (img.getWidth() / ((double) img.getHeight() / h));
+            }
+
+            System.out.println(newW);
+            System.out.println(newH);
+
+            Image tmp = img.getScaledInstance(newW, newH, Image.SCALE_SMOOTH);
+            BufferedImage dimg = new BufferedImage(newW, newH, img.getType());
+            Graphics2D g2d = dimg.createGraphics();
+            g2d.drawImage(tmp, 0, 0, null);
+            g2d.dispose();
+            return dimg;
+        }
+        return img;
+    }
+
 }

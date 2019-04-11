@@ -29,13 +29,12 @@ public class MainFrame extends javax.swing.JFrame {
     /**
      * Creates new form MainFrame
      */
-    
     public MainFrame() {
         initComponents();
         setLocationRelativeTo(null);
     }
-  
- 
+
+
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
@@ -101,10 +100,11 @@ public class MainFrame extends javax.swing.JFrame {
 
             try {
                 BufferedImage image = ImageIO.read(jfc.getSelectedFile());
-                FrameImage newFrame = new FrameImage();
                 this.setVisible(false);
+                FrameImage newFrame = new FrameImage();
+                newFrame.setModal(true);
                 newFrame.StartFrame(image);
-
+                this.setVisible(true);
             } catch (IOException ex) {
                 Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -113,6 +113,7 @@ public class MainFrame extends javax.swing.JFrame {
     }
 
     private void btnLoadVideoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoadVideoActionPerformed
+
         JFileChooser jfc = new JFileChooser();
 
         if (jfc.showOpenDialog(btnLoadVideo) == JFileChooser.APPROVE_OPTION) {
@@ -121,9 +122,8 @@ public class MainFrame extends javax.swing.JFrame {
             ArrayList<Mat> frames = new ArrayList<>();
             MatOfByte mem = new MatOfByte();
 
-            
             double fps = webSource.get(Videoio.CAP_PROP_FPS);
-            
+
             while (webSource.grab()) {
                 Mat frame = new Mat();
                 webSource.retrieve(frame);
@@ -134,8 +134,10 @@ public class MainFrame extends javax.swing.JFrame {
             if (frames.size() > 0) {
                 this.setVisible(false);
                 FrameVideo videoFrame = new FrameVideo(frames);
+                videoFrame.setModal(true);
                 videoFrame.setFPS(fps);
                 videoFrame.StartFrameScaleImage();
+                this.setVisible(true);
             } else {
                 JOptionPane.showMessageDialog(null, "Verify the file.", "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -146,14 +148,14 @@ public class MainFrame extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
+
+        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
          * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
          */
-
-        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
@@ -172,7 +174,6 @@ public class MainFrame extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(() -> {
             new MainFrame().setVisible(true);
         });
-
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
