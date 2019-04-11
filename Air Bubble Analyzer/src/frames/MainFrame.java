@@ -34,6 +34,7 @@ public class MainFrame extends javax.swing.JFrame {
         setLocationRelativeTo(null);
     }
 
+    
 
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -104,6 +105,7 @@ public class MainFrame extends javax.swing.JFrame {
                 DialogImage newFrame = new DialogImage();
                 newFrame.setModal(true);
                 newFrame.StartFrame(image);
+                newFrame.reset();
                 this.setVisible(true);
             } catch (IOException ex) {
                 Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);

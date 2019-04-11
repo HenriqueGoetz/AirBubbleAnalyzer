@@ -49,6 +49,17 @@ public class DialogImage extends javax.swing.JDialog {
         setLocationRelativeTo(null);
     }
 
+    public void reset() {
+        onClick = SCALE;
+        cor = WHITE;
+        lblAreaPixels.setText("-----");
+        lblAreaCm.setText("-----");
+        lblHightPixels.setText("-----");
+        lblHightCm.setText("-----");
+        lblScalePixels.setText("-----");
+        lblScaleCm.setText("-----");
+    }
+
     public void StartFrame(BufferedImage image) {
         lblImage.setIcon(new ImageIcon(resize(image)));
         lblImage.setHorizontalAlignment(SwingConstants.CENTER);
@@ -153,7 +164,6 @@ public class DialogImage extends javax.swing.JDialog {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Speed Analyzer");
-        setMinimumSize(new java.awt.Dimension(1800, 900));
 
         btnCountPixels.setText(" Count pixels");
         btnCountPixels.addActionListener(new java.awt.event.ActionListener() {
@@ -164,7 +174,7 @@ public class DialogImage extends javax.swing.JDialog {
 
         jpImage.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         jpImage.setMinimumSize(new java.awt.Dimension(1500, 800));
-        jpImage.setPreferredSize(new java.awt.Dimension(1500, 800));
+        jpImage.setPreferredSize(new java.awt.Dimension(1200, 640));
 
         lblImage.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         lblImage.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
@@ -182,11 +192,11 @@ public class DialogImage extends javax.swing.JDialog {
         jpImage.setLayout(jpImageLayout);
         jpImageLayout.setHorizontalGroup(
             jpImageLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(lblImage, javax.swing.GroupLayout.DEFAULT_SIZE, 1496, Short.MAX_VALUE)
+            .addComponent(lblImage, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         jpImageLayout.setVerticalGroup(
             jpImageLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(lblImage, javax.swing.GroupLayout.DEFAULT_SIZE, 796, Short.MAX_VALUE)
+            .addComponent(lblImage, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         jPanel2.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -690,13 +700,12 @@ public class DialogImage extends javax.swing.JDialog {
     private int countVerticalPixels(BufferedImage image, Point initialPoint) {
         int sup = 0, inf = 0;
         Color black = new Color(0, 0, 0);
-
         Color gray = new Color(128, 128, 128);
 
         while (image.getRGB(initialPoint.x, initialPoint.y - sup) == black.getRGB() || image.getRGB(initialPoint.x, initialPoint.y - sup) == gray.getRGB()) {
             sup++;
         }
-        while (image.getRGB(initialPoint.x, initialPoint.y + inf) == black.getRGB() || image.getRGB(initialPoint.x, initialPoint.y - sup) == gray.getRGB()) {
+        while (image.getRGB(initialPoint.x, initialPoint.y + inf) == black.getRGB() || image.getRGB(initialPoint.x, initialPoint.y + inf) == gray.getRGB()) {
             inf++;
         }
         return inf + sup - 1;
