@@ -530,7 +530,7 @@ public class DialogImage extends javax.swing.JDialog {
 
                 int areaPixels = countPixelsFromImagePainting(buffered, initialPoint);
                 double areaCm = areaPixels * scaleCm / scalePixels;
-                int hightPixels = countVerticalPixels(buffered, initialPoint);
+                int hightPixels = countVerticalPixelsFromLarger(buffered, initialPoint);
                 double hightCm = hightPixels * Math.sqrt(scaleCm) / Math.sqrt(scalePixels);
 
                 lblAreaPixels.setText(String.valueOf(areaPixels));
@@ -563,7 +563,7 @@ public class DialogImage extends javax.swing.JDialog {
             Image image = img.getImage();
             BufferedImage buffered = (BufferedImage) image;
             try {
-                ImageIO.write(buffered, "JPG", new File("imagens/" + txtNome.getText() + ".jpg"));
+                ImageIO.write(buffered, "JPG", new File(txtNome.getText() + ".jpg"));
                 JOptionPane.showMessageDialog(null, "Imagem salva com sucesso.");
             } catch (IOException ex) {
                 Logger.getLogger(DialogImage.class.getName()).log(Level.SEVERE, null, ex);
@@ -709,6 +709,32 @@ public class DialogImage extends javax.swing.JDialog {
             inf++;
         }
         return inf + sup - 1;
+    }
+
+    private int countVerticalPixelsFromLarger(BufferedImage image, Point initialPoint) {
+        Color black = new Color(0, 0, 0);
+        Color gray = new Color(128, 128, 128);
+
+        int largerNumber= 0;
+        int left = 0, right = 0;
+
+        while (image.getRGB(initialPoint.x - left, initialPoint.y) == black.getRGB() || image.getRGB(initialPoint.x - left, initialPoint.y ) == gray.getRGB()) {
+            int result = countVerticalPixels(image, new Point(initialPoint.x - left, initialPoint.y));
+            if (result > largerNumber) {
+                largerNumber = result;
+            }
+            left++;
+        }
+        
+        while (image.getRGB(initialPoint.x + right, initialPoint.y) == black.getRGB() || image.getRGB(initialPoint.x + right, initialPoint.y ) == gray.getRGB()) {
+            int result = countVerticalPixels(image, new Point(initialPoint.x + right, initialPoint.y));
+            if (result > largerNumber) {
+                largerNumber = result;
+            }
+            right++;
+        }
+        
+        return largerNumber;
     }
 
     private static BufferedImage resize(BufferedImage img) {
